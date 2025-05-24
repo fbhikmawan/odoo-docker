@@ -1,6 +1,6 @@
-# Odoo ERP
+# Odoo 17 ERP
 
-This repository contains a Docker-based development environment for Odoo ERP.
+This repository contains a Docker-based development environment for Odoo 17 ERP from APT Repository.
 
 ## Table of Contents
 
@@ -30,7 +30,7 @@ This repository contains a Docker-based development environment for Odoo ERP.
 
 ## Overview
 
-This workspace provides a complete development environment for Odoo ERP applications using Docker and Docker Compose. The setup includes:
+This workspace provides a complete development environment for Odoo 17 ERP applications using Docker and Docker Compose. The setup includes:
 
 - Odoo application server
 - PostgreSQL 16 database
