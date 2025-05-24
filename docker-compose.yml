@@ -14,9 +14,10 @@ services:
       - ./.docker/odoo.conf:/etc/odoo/odoo.conf
       - ./addons:/mnt/extra-addons
     environment:
-      - HOST=${ODOO_DB_HOST}
-      - USER=${ODOO_DB_USER}
-      - PASSWORD=${ODOO_DB_PASSWORD}
+      - ODOO_VERSION=${ODOO_VERSION:-17}
+      - HOST=${ODOO_DB_HOST:-db}
+      - USER=${ODOO_DB_USER:-odoo}
+      - PASSWORD=${ODOO_DB_PASSWORD:-odoo_password}
     deploy:
       resources:
         limits:
@@ -32,17 +33,17 @@ services:
   db:
     image: postgres:16  # Latest stable version as of April 2025
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - PGDATA=${PGDATA}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - POSTGRES_USER=${POSTGRES_USER:-odoo}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-odoo_password}
+      - PGDATA=${PGDATA:-/var/lib/postgresql/data/pgdata}
       # PostgreSQL optimization for limited resources
-      - POSTGRES_INITDB_ARGS=${POSTGRES_INITDB_ARGS}
-      - POSTGRES_SHARED_BUFFERS=${POSTGRES_SHARED_BUFFERS}
-      - POSTGRES_EFFECTIVE_CACHE_SIZE=${POSTGRES_EFFECTIVE_CACHE_SIZE}
-      - POSTGRES_WORK_MEM=${POSTGRES_WORK_MEM}
-      - POSTGRES_MAINTENANCE_WORK_MEM=${POSTGRES_MAINTENANCE_WORK_MEM}
-      - POSTGRES_MAX_CONNECTIONS=${POSTGRES_MAX_CONNECTIONS}
+      - POSTGRES_INITDB_ARGS=${POSTGRES_INITDB_ARGS:---data-checksums}
+      - POSTGRES_SHARED_BUFFERS=${POSTGRES_SHARED_BUFFERS:-128MB}
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=${POSTGRES_EFFECTIVE_CACHE_SIZE:-384MB}
+      - POSTGRES_WORK_MEM=${POSTGRES_WORK_MEM:-4MB}
+      - POSTGRES_MAINTENANCE_WORK_MEM=${POSTGRES_MAINTENANCE_WORK_MEM:-64MB}
+      - POSTGRES_MAX_CONNECTIONS=${POSTGRES_MAX_CONNECTIONS:-20}
     volumes:
       - postgres-data:/var/lib/postgresql/data/pgdata
     deploy:
