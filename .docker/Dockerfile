@@ -1,4 +1,4 @@
-FROM ubuntu:jammy
+FROM debian:bookworm-slim
 LABEL maintainer="ASAid Group Investment <developer@asaidgroup.com>"
 
 SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
@@ -42,17 +42,16 @@ RUN apt-get update && \
     fi; \
     WKHTMLTOPDF_ARCH=${TARGETARCH} && \
     case ${TARGETARCH} in \
-    "amd64") WKHTMLTOPDF_ARCH=amd64 && WKHTMLTOPDF_SHA=967390a759707337b46d1c02452e2bb6b2dc6d59  ;; \
-    "arm64")  WKHTMLTOPDF_SHA=90f6e69896d51ef77339d3f3a20f8582bdf496cc  ;; \
-    "ppc64le" | "ppc64el") WKHTMLTOPDF_ARCH=ppc64el && WKHTMLTOPDF_SHA=5312d7d34a25b321282929df82e3574319aed25c  ;; \
+    "amd64") WKHTMLTOPDF_ARCH=amd64 ;; \
+    "arm64") WKHTMLTOPDF_ARCH=arm64 ;; \
+    "ppc64le" | "ppc64el") WKHTMLTOPDF_ARCH=ppc64el ;; \
     esac \
-    && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.jammy_${WKHTMLTOPDF_ARCH}.deb \
-    && echo ${WKHTMLTOPDF_SHA} wkhtmltox.deb | sha1sum -c - \
+    && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_${WKHTMLTOPDF_ARCH}.deb \
     && apt-get install -y --no-install-recommends ./wkhtmltox.deb \
     && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
-# install latest postgresql-client
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
+# Install latest postgresql-client
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bookworm-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
     && GNUPGHOME="$(mktemp -d)" \
     && export GNUPGHOME \
     && repokey='B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8' \
@@ -65,21 +64,29 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main' > /etc/a
     && rm -f /etc/apt/sources.list.d/pgdg.list \
     && rm -rf /var/lib/apt/lists/*
 
-# Install rtlcss (on Debian buster)
+# Install rtlcss
 RUN npm install -g rtlcss
 
 # Install Odoo
 ARG ODOO_VERSION
 ENV ODOO_VERSION=${ODOO_VERSION}
 
-RUN curl -o /usr/share/keyrings/odoo-archive-keyring.gpg https://nightly.odoo.com/odoo.key \
-    && echo "deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] https://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/ ./" > /etc/apt/sources.list.d/odoo.list \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends odoo \
+RUN apt-get update  \
+    && apt-get install -y wget
+RUN wget -q -O - https://nightly.odoo.com/odoo.key | gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg \ 
+    && echo 'deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] https://nightly.odoo.com/17.0/nightly/deb/ ./' | tee /etc/apt/sources.list.d/odoo.list \ 
+    && apt-get update && apt-get install -y --no-install-recommends odoo \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
+COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
+
+# Make scripts executable
+RUN chmod +x /entrypoint.sh && \
+    chmod +x /usr/local/bin/wait-for-psql.py && \
+    # Ensure the script is accessible by the odoo user
+    chmod 755 /usr/local/bin/wait-for-psql.py
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN chown odoo /etc/odoo/odoo.conf \
@@ -92,8 +99,6 @@ EXPOSE 8069 8071 8072
 
 # Set the default config file
 ENV ODOO_RC=/etc/odoo/odoo.conf
-
-COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
 
 # Set default user when running the container
 USER odoo
