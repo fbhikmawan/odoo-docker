@@ -30,9 +30,9 @@ This repository contains a Docker-based development environment for Odoo ERP.
 
 ## Overview
 
-This workspace provides a complete development environment for Odoo 17 ERP applications using Docker and Docker Compose. The setup includes:
+This workspace provides a complete development environment for Odoo ERP applications using Docker and Docker Compose. The setup includes:
 
-- Odoo 17 application server
+- Odoo application server
 - PostgreSQL 16 database
 - Resource-optimized configuration
 - Development tools and addons support
@@ -111,6 +111,7 @@ The .env file contains all configurable parameters:
 
 | Variable                 | Default       | Description                  |
 | ------------------------ | ------------- | ---------------------------- |
+| ODOO_VERSION             | 17            | Odoo version                 |
 | ODOO_DB_HOST             | db            | Database hostname            |
 | ODOO_DB_USER             | odoo          | Database username            |
 | ODOO_DB_PASSWORD         | odoo_password | Database password            |
