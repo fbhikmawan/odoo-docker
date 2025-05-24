@@ -1,0 +1,58 @@
+services:
+  odoo:
+    build:
+      context: ./.docker
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"  # Web
+      - "8071:8071"  # XMLRPCS
+      - "8072:8072"  # Longpolling
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./.docker/odoo.conf:/etc/odoo/odoo.conf
+      - ./addons:/mnt/extra-addons
+    environment:
+      - HOST=${ODOO_DB_HOST}
+      - USER=${ODOO_DB_USER}
+      - PASSWORD=${ODOO_DB_PASSWORD}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/database/selector"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:16  # Latest stable version as of April 2025
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=${PGDATA}
+      # PostgreSQL optimization for limited resources
+      - POSTGRES_INITDB_ARGS=${POSTGRES_INITDB_ARGS}
+      - POSTGRES_SHARED_BUFFERS=${POSTGRES_SHARED_BUFFERS}
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=${POSTGRES_EFFECTIVE_CACHE_SIZE}
+      - POSTGRES_WORK_MEM=${POSTGRES_WORK_MEM}
+      - POSTGRES_MAINTENANCE_WORK_MEM=${POSTGRES_MAINTENANCE_WORK_MEM}
+      - POSTGRES_MAX_CONNECTIONS=${POSTGRES_MAX_CONNECTIONS}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/pgdata
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+
+volumes:
+  odoo-data:
+  postgres-data:

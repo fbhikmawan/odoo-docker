@@ -1,0 +1,24 @@
+[submodule "addons/oca/server-tools"]
+	path = addons/oca/server-tools
+	url = https://github.com/OCA/server-tools.git
+	branch = 17.0
+[submodule "addons/oca/web"]
+	path = addons/oca/web
+	url = https://github.com/OCA/web.git
+	branch = 17.0
+[submodule "addons/oca/website"]
+	path = addons/oca/website
+	url = https://github.com/OCA/website.git
+	branch = 17.0
+[submodule "addons/asaidgroup/website_asaid_popup_extension"]
+	path = addons/asaidgroup/website_asaid_popup_extension
+	url = https://github.com/fbhikmawan/website_asaid_popup_extension.git
+	branch = master
+[submodule "addons/asaidgroup/website_asaid_carousel_extension"]
+	path = addons/asaidgroup/website_asaid_carousel_extension
+	url = https://github.com/fbhikmawan/website_asaid_carousel_extension.git
+	branch = master
+[submodule "addons/asaidgroup/web_core_extension_asaid"]
+	path = addons/asaidgroup/web_core_extension_asaid
+	url = https://github.com/fbhikmawan/web_core_extension_asaid.git
+	branch = master
