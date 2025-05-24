@@ -17,7 +17,6 @@ services:
       - HOST=${ODOO_DB_HOST}
       - USER=${ODOO_DB_USER}
       - PASSWORD=${ODOO_DB_PASSWORD}
-    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -46,7 +45,6 @@ services:
       - POSTGRES_MAX_CONNECTIONS=${POSTGRES_MAX_CONNECTIONS}
     volumes:
       - postgres-data:/var/lib/postgresql/data/pgdata
-    restart: unless-stopped
     deploy:
       resources:
         limits:
